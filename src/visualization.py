@@ -42,6 +42,7 @@ def draw_status_banner(frame, status):
         "intruder": ("!! INTRUDER DETECTED !!", RED),
         "disarmed": ("SYSTEM DISARMED", GRAY),
         "learning": ("LEARNING BACKGROUND...", GRAY),
+        "adapting": ("LIGHTING CHANGE - ADAPTING...", GRAY),
     }[status]
     overlay = frame.copy()
     cv2.rectangle(overlay, (0, 0), (frame.shape[1], 36), color, -1)
@@ -51,10 +52,12 @@ def draw_status_banner(frame, status):
                 text_color, 2, cv2.LINE_AA)
 
 
-def draw_hud(frame, fps, frame_idx, alert_count, armed):
+def draw_hud(frame, fps, frame_idx, alert_count, armed, show_keys=True):
     """Small info line at the bottom of the frame."""
     info = (f"FPS {fps:4.1f} | Frame {frame_idx} | Alerts {alert_count} | "
-            f"{'ARMED' if armed else 'DISARMED'}  [q] quit [a] arm [space] pause [p] screenshot")
+            f"{'ARMED' if armed else 'DISARMED'}")
+    if show_keys:
+        info += "  [q] quit [a] arm [space] pause [p] screenshot"
     cv2.rectangle(frame, (0, frame.shape[0] - 24), (frame.shape[1], frame.shape[0]),
                   (0, 0, 0), -1)
     cv2.putText(frame, info, (6, frame.shape[0] - 8), cv2.FONT_HERSHEY_SIMPLEX,

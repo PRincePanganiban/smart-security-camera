@@ -33,18 +33,19 @@ class AlertManager:
                 ["timestamp", "frame", "video_time_sec", "event", "moving_objects", "faces"])
 
     def trigger(self, frame, frame_idx, n_motion, n_faces):
-        """Save a snapshot + log row if the cooldown has passed. Returns True if saved."""
+        """Save a snapshot + log row if the cooldown has passed. Returns the snapshot path, or None."""
         if frame_idx - self.last_alert_frame < self.cooldown_frames:
-            return False
+            return None
         self.last_alert_frame = frame_idx
         self.alert_count += 1
 
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"intruder_{stamp}_frame{frame_idx}.jpg"
-        cv2.imwrite(os.path.join(self.snapshot_dir, filename), frame)
+        snapshot_path = os.path.join(self.snapshot_dir, filename)
+        cv2.imwrite(snapshot_path, frame)
 
         with open(self.log_path, "a", newline="") as f:
             csv.writer(f).writerow([
                 datetime.now().isoformat(timespec="seconds"), frame_idx,
                 round(frame_idx / self.fps, 2), "INTRUDER_DETECTED", n_motion, n_faces])
-        return True
+        return snapshot_path

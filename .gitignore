@@ -4,3 +4,7 @@ __pycache__/
 outputs/snapshots/*.jpg
 outputs/logs/*.csv
 outputs/*.mp4
+build/
+dist/
+*.spec
+selftest.txt

@@ -9,17 +9,25 @@ regions where motion was found (plus a small padding), not the whole frame.
 A moving object that contains a face is treated as a person.
 """
 
+import os
+
 import cv2
+
+from src.paths import resource_path
 
 
 class FaceDetector:
-    def __init__(self, scale_factor=1.1, min_neighbors=5, min_size=(40, 40)):
+    def __init__(self, scale_factor=1.1, min_neighbors=3, min_size=(30, 30)):
         """
         scale_factor  : how much the search window grows each pass (smaller = slower, finer)
         min_neighbors : overlapping detections needed to accept a face (higher = fewer false positives)
         min_size      : smallest face (w, h) to look for
         """
-        cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        # Use the copy shipped in assets/ (works inside the .exe); otherwise
+        # fall back to the file that comes with the opencv-python package.
+        cascade_path = resource_path(os.path.join("assets", "haarcascade_frontalface_default.xml"))
+        if not os.path.isfile(cascade_path):
+            cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
         self.cascade = cv2.CascadeClassifier(cascade_path)
         if self.cascade.empty():
             raise RuntimeError(f"Could not load Haar cascade: {cascade_path}")
@@ -27,7 +35,7 @@ class FaceDetector:
         self.min_neighbors = min_neighbors
         self.min_size = min_size
 
-    def detect_in_regions(self, gray, regions, padding=20):
+    def detect_in_regions(self, gray, regions, padding=60):
         """
         Search for faces inside each (x, y, w, h) region of the gray image.
         Returns a list of face boxes in full-frame coordinates.

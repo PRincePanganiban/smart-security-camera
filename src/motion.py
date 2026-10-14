@@ -15,19 +15,25 @@ Pipeline for every frame:
 """
 
 import cv2
+import numpy as np
 
 
 class MotionDetector:
     def __init__(self, min_area=1500, history=300, var_threshold=32,
-                 warmup_frames=30):
+                 warmup_frames=30, global_change_ratio=0.5):
         """
         min_area       : ignore moving blobs smaller than this many pixels
         history        : how many frames MOG2 uses to learn the background
         var_threshold  : higher = less sensitive to small changes
         warmup_frames  : frames used only to learn the background (no detections)
+        global_change_ratio : if more than this fraction of the frame changes at
+                       once, it is treated as a lighting/exposure change (phone
+                       cameras do this) instead of real motion
         """
         self.min_area = min_area
         self.warmup_frames = warmup_frames
+        self.global_change_ratio = global_change_ratio
+        self.global_change = False
         self.frame_count = 0
         self.subtractor = cv2.createBackgroundSubtractorMOG2(
             history=history, varThreshold=var_threshold, detectShadows=True
@@ -56,12 +62,25 @@ class MotionDetector:
         if self.frame_count <= self.warmup_frames:
             return mask, []
 
+        # Lighting guard: when almost the whole picture changes at once the camera
+        # probably adjusted its exposure. Ignore this frame and let the background
+        # model adapt quickly (high learning rate) instead of reporting "motion".
+        changed_ratio = cv2.countNonZero(mask) / mask.size
+        self.global_change = changed_ratio > self.global_change_ratio
+        if self.global_change:
+            self.subtractor.apply(blurred_gray, learningRate=0.5)
+            return np.zeros_like(mask), []
+
         # 4-5. Contours -> bounding boxes of sufficiently large moving objects
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
                                        cv2.CHAIN_APPROX_SIMPLE)
         boxes = [cv2.boundingRect(c) for c in contours
                  if cv2.contourArea(c) >= self.min_area]
         return mask, boxes
+
+    def set_var_threshold(self, value):
+        """Change sensitivity while running (higher value = less sensitive)."""
+        self.subtractor.setVarThreshold(float(value))
 
     @property
     def learning(self):

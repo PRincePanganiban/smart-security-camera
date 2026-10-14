@@ -12,15 +12,15 @@
 |---|---|---|
 | 0:00–1:30 | Problem: why plain motion cameras give false alarms; our idea | 3 |
 | 1:30–3:00 | Pipeline diagram: frame → preprocess → segment → track → face check → alert | 3 |
-| 3:00–5:00 | Run `python main.py`. Point out the empty-room "learning" phase, then the box = **MOTION** (yellow) | 3 |
-| 5:00–7:00 | Pause (`space`) on the mask. Explain MOG2, threshold, morphology | 1 |
+| 3:00–5:00 | Open `SmartSecurityCamera.exe` → **Open Video...** → pick the video. Point out the "learning" phase, then yellow = **MOTION** | 3 |
+| 5:00–7:00 | Click **Pause**, point at the motion-mask panel. Explain MOG2, threshold, morphology. Move the **Motion threshold** slider to show sensitivity | 1 |
 | 7:00–9:30 | Person enters → **INTRUDER**. Explain Haar cascade, scaleFactor / minNeighbors, ROI trick | 2 |
 | 9:30–11:00 | Show object IDs and blue trails; explain centroid matching | 2 |
-| 11:00–12:30 | Open `outputs/snapshots` and `events.csv`; press `a` to disarm/arm | 3 |
+| 11:00–12:30 | Click **Open Output Folder** (snapshots + `events.csv`); click **Disarm / Arm** | 3 |
 | 12:30–14:00 | Limitations + improvements (live, honest) | all |
 | 14:00–15:00 | Wrap-up | 3 |
 
-Tips: run it once before presenting; keep the video in `sample_inputs/`; have `outputs/result.mp4` as a backup.
+Tips: run the `.exe` once before presenting; keep the demo videos in the `sample_inputs` folder next to it; have the Python version (`python app.py`) ready as a backup.
 
 ## Likely Q&A
 1. **Why background subtraction instead of simple frame differencing?** MOG2 models the background statistically per pixel, so it tolerates small lighting changes and noise better than subtracting two frames.
@@ -33,3 +33,6 @@ Tips: run it once before presenting; keep the video in `sample_inputs/`; have `o
 8. **How does the tracker keep IDs?** It matches each new centroid to the nearest previous centroid within a distance limit; unmatched ones become new objects.
 9. **When does it fail?** Camera shake, profile/covered faces, lighting changes, a person standing still (absorbed into the background).
 10. **How would you improve it?** DNN face detector, landmarks for eye/blink analysis, zones, e-mail alerts.
+
+11. **Why is it an .exe / how is it packaged?** PyInstaller bundles Python, OpenCV and our code into one file, so it runs without installing Python.
+12. **What is the "lighting change" message?** Phone cameras sometimes adjust exposure, which changes the whole picture at once. If over half the frame changes, we treat it as lighting, not motion, and let the background model adapt.
