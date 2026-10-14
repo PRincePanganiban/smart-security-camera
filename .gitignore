@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+outputs/snapshots/*.jpg
+outputs/logs/*.csv
+outputs/*.mp4
