@@ -1,5 +1,8 @@
 # Smart Security Camera (Motion + Face Detection)
 
+**Download the app (Windows .exe):** [Google Drive](https://drive.google.com/file/d/15Nz4rlfiWQhm1IxfPafBQjyVSFGpET6J/view?usp=sharing)
+Unzip the folder and double-click `SmartSecurityCamera.exe`. If Windows warns that the app is unrecognized, click **More info, then Run anyway**. Use **Open Video...** and choose a file from the `sample_inputs` folder.
+
 **CSC 126 – Computer Vision Midterm Project** · Caraga State University, CCIS
 
 A **desktop application** (Python + OpenCV, packaged as a Windows `.exe`) that watches a video,
